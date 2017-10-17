@@ -15,7 +15,7 @@ automatically added to the customised variable
 *machine-interface-mapping* which is part of the *network* group.
 
 
-* Setup
+## Setup
 
 The first time the library is used on a computer it will add the
 machine name and the set of all active interfaces to the
@@ -28,7 +28,25 @@ The *have-network-hook* is run at the end of emacs startup if you have
 connectivity.
 
 
-* Utility function
+## Utility function
 
 Besides the two hooks the library also provides a *have-network-p*
 function which returns not nil when a listed interface is up.
+
+
+
+## Example
+
+In this example *gmail-notifier* is configured with the help of
+*ja-network* it is automatically started and stopped when the network
+is up or down respectively.
+
+	(require 'ja-network)
+	(require 'gmail-notifier)
+	
+	(setq gmail-notifier-username "jamiguet")
+	(setq gmail-notifier-password ja-password)
+
+	(add-hook 'network-up-hook 'gmail-notifier-start) 
+	(add-hook 'network-down-hook 'gmail-notifier-stop) 
+
