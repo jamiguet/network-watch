@@ -39,7 +39,7 @@ function which returns not nil when a listed interface is up.
 
 In this example *gmail-notifier* is configured with the help of
 *ja-network* it is automatically started and stopped when the network
-is up or down respectively.
+	is up or down respectively.
 
 	(require 'ja-network)
 	(require 'gmail-notifier)

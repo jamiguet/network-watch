@@ -1,3 +1,18 @@
+;;; ja-network.el --- Support for intermitent network connectivity in emacs
+;; Copyright (C) 2010-2017 Your Name
+     
+;; Author: Juan Amiguet Vercher <jamiguet@gmail.com>
+;; Created: 17 Oct 2017
+;; Version: 1.0
+;; Keywords: networking hooks
+;; Homepage: https://github.com/jamiguet/ja-network
+;; Package-Requires: ((org "1.0"))
+
+;; This file is not part of GNU Emacs.
+
+;; This file is free software...
+
+;;; Code:
 (require 'org)
 
 ;; define that we are on a specific machine
@@ -77,3 +92,4 @@
 (add-hook 'after-init-hook 'ja-network-init)
 
 (provide 'ja-network)
+;;; ja-network.el ends here
