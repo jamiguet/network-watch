@@ -1,10 +1,10 @@
-;;; ja-network.el --- Support for intermitent network connectivity in emacs
+;;; ja-network.el --- Support for intermitent network connectivity
 ;; Copyright (C) 2010-2017 Your Name
      
 ;; Author: Juan Amiguet Vercher <jamiguet@gmail.com>
 ;; Created: 17 Oct 2017
 ;; Version: 1.0
-;; Keywords: networking hooks
+;; Keywords: unix tools hardware lisp
 ;; Homepage: https://github.com/jamiguet/ja-network
 ;; Package-Requires: ((org "1.0"))
 
@@ -12,8 +12,20 @@
 
 ;; This file is free software...
 
+
+;;; Commentary:
+;;; Adds support for intermitent netowrk connectivity.
+;;; Through two hooks run when network connectivity appears and
+;;; disappears.
+;; 
+
 ;;; Code:
 (require 'org)
+
+(defvar network-up-hook)
+(defvar network-down-hook)
+(defvar machine-name)
+(defvar ja-network--system-state)
 
 ;; define that we are on a specific machine
 (setq machine-name (substring (eshell-command-result "hostname") 0 -1 ))
@@ -22,33 +34,37 @@
 ;; Publish on melpa.
 
 ;; Define base group for network information
-(defgroup network () "Customisation group for network availability hooks")
+(defgroup network nil
+  "Customisation group for network availability hooks"
+  :group 'Emacs)
 
 
-(defcustom machine-interface-mapping nil
-  "List of interfaces providing network per machine"
+(defcustom ja-network-machine-interface-mapping nil
+  "List of interfaces providing network per machine."
   :type 'string
   :group 'network)
 
-(defcustom network-update-time-interval 120
-  "Refersh reate for network statatus"
+(defcustom ja-network-update-time-interval 120
+  "Refersh reate for network statatus."
   :type 'integer
   :group 'network)
 
 
-(defun ja-machine-add ()
-  "Adds the current machine to the machine interface mapping"
+(defun ja-network--machine-add ()
+  "Add the current machine to the machine interface mapping."
+  (defvar intf-names)
   (setq intf-names ())
   (dolist (intf (network-interface-list) intf-names)
     (setq intf-names (cons (car intf) intf-names)))
- (customize-save-variable machine-interface-mapping (cons (list  machine-name intf-names ) machine-interface-mapping)))
+ (customize-save-variable ja-network-machine-interface-mapping (cons (list  machine-name intf-names ) ja-network-machine-interface-mapping)))
 
 
 
-(defun have-network-p ()
+(defun ja-network-have-network-p ()
+  "Return nil if there are no active network interfaces."
   (catch 'break
-    (dolist (intf 
-	     (cadr (assoc machine-name machine-interface-mapping))
+    (dolist (intf
+	     (cadr (assoc machine-name ja-network-machine-interface-mapping))
 	     value)
       (if (assoc intf (network-interface-list))
 	  (progn (setq value t)
@@ -57,39 +73,40 @@
     ))
 
 
-(defvar network-up-hook)
-(defvar network-down-hook)
 
-(defun ja-network-update-system-state () 
-  (setq ja-network-system-state (have-network-p))
+(defun ja-network-update-system-state ()
+  "Internal method update the network state variable."
+  (setq ja-network--system-state (have-network-p))
   )
 
 
-(defun update-network-state ()
-  (if (org-xor (have-network-p) ja-network-system-state)
+(defun ja-network--update-network-state ()
+  "Run hooks only on network status change."
+  (if (org-xor (have-network-p) ja-network--system-state)
       (progn
 	(if (have-network-p) (run-hooks 'network-up-hook)
 	  (run-hooks 'network-down-hook))
 	(ja-network-update-system-state)
 	))
-  (run-with-timer network-update-time-interval  nil 'update-network-state)
+  (run-with-timer ja-network-update-time-interval  nil 'update-network-state)
   (message "Network state update")
   )
 
 
-(defun ja-network-init ()
-  (if (not (assoc machine-name machine-interface-mapping))
+(defun ja-network--init ()
+  "Initialises the inner state of the network and configures machine if neccessary."
+  (if (not (assoc machine-name ja-network-machine-interface-mapping))
       (progn
 	(message "Machine not pressent adding machine. Customise network group if needed.")
-	(ja-machine-add)))
+	(ja-network-machine-add)))
   (ja-network-update-system-state)
-  (run-with-timer network-update-time-interval  nil 'update-network-state)
+  (run-with-timer ja-network-update-time-interval  nil 'update-network-state)
   (if (have-network-p) (run-hooks 'network-up-hook))
   (message "Network init")
   )
 
 
-(add-hook 'after-init-hook 'ja-network-init)
+(add-hook 'after-init-hook 'ja-network--init)
 
 (provide 'ja-network)
 ;;; ja-network.el ends here
