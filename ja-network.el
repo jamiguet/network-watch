@@ -98,7 +98,7 @@
   (if (not (assoc machine-name ja-network-machine-interface-mapping))
       (progn
 	(message "Machine not pressent adding machine. Customise network group if needed.")
-	(ja-network-machine-add)))
+	(ja-network--machine-add)))
   (ja-network-update-system-state)
   (run-with-timer ja-network-update-time-interval  nil 'update-network-state)
   (if (have-network-p) (run-hooks 'network-up-hook))
