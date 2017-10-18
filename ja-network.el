@@ -47,7 +47,7 @@
 (defcustom ja-network-update-time-interval 120
   "Refersh reate for network statatus."
   :type 'integer
-  :group 'network)
+  :group 'network)g
 
 
 (defun ja-network--machine-add ()
