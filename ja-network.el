@@ -88,7 +88,7 @@
 	  (run-hooks 'network-down-hook))
 	(ja-network-update-system-state)
 	))
-  (run-with-timer ja-network-update-time-interval  nil 'update-network-state)
+  (run-with-timer ja-network-update-time-interval  nil 'ja-network--update-network-state)
   (message "Network state update")
   )
 
@@ -100,7 +100,7 @@
 	(message "Machine not pressent adding machine. Customise network group if needed.")
 	(ja-network--machine-add)))
   (ja-network-update-system-state)
-  (run-with-timer ja-network-update-time-interval  nil 'update-network-state)
+  (run-with-timer ja-network-update-time-interval  nil 'ja-network--update-network-state)
   (if (ja-network-have-network-p) (run-hooks 'network-up-hook))
   (message "Network init")
   )
