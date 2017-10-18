@@ -3,10 +3,10 @@
      
 ;; Author: Juan Amiguet Vercher <jamiguet@gmail.com>
 ;; Created: 17 Oct 2017
-;; Version: 20171016
+;; Version: 1.0
 ;; Keywords: unix tools hardware lisp
 ;; Homepage: https://github.com/jamiguet/ja-network
-;; Package-Requires: ((org "1.0"))
+;; Package-Requires: ((org "20171016"))
 
 ;; This file is not part of GNU Emacs.
 
