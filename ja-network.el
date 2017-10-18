@@ -3,7 +3,7 @@
      
 ;; Author: Juan Amiguet Vercher <jamiguet@gmail.com>
 ;; Created: 17 Oct 2017
-;; Version: 1.0
+;; Version: 20171016
 ;; Keywords: unix tools hardware lisp
 ;; Homepage: https://github.com/jamiguet/ja-network
 ;; Package-Requires: ((org "1.0"))
@@ -58,7 +58,7 @@
     (setq intf-names (cons (car intf) intf-names)))
   (customize-save-variable 'ja-network-machine-interface-mapping
 		(cons (list  machine-name intf-names ) ja-network-machine-interface-mapping)
-		"List of machine interfaces.x "))
+		"List of machine interfaces."))
 
 
 
