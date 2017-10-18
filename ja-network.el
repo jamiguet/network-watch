@@ -41,7 +41,7 @@
 
 (defcustom ja-network-machine-interface-mapping ()
   "List of interfaces providing network per machine."
-  :type '(cons string (cons string string))
+  :type 'sexp
   :group 'network)
 
 (defcustom ja-network-update-time-interval 120
