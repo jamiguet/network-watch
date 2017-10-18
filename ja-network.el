@@ -39,7 +39,7 @@
   :group 'Emacs)
 
 
-(defcustom ja-network-machine-interface-mapping nil
+(defcustom ja-network-machine-interface-mapping ()
   "List of interfaces providing network per machine."
   :type 'string
   :group 'network)
@@ -56,7 +56,7 @@
   (setq intf-names ())
   (dolist (intf (network-interface-list) intf-names)
     (setq intf-names (cons (car intf) intf-names)))
- (customize-save-variable ja-network-machine-interface-mapping (cons (list  machine-name intf-names ) ja-network-machine-interface-mapping)))
+  (set-variable 'ja-network-machine-interface-mapping (cons (list  machine-name intf-names ) ja-network-machine-interface-mapping) "List of machine interfaces.x "))
 
 
 
@@ -76,15 +76,15 @@
 
 (defun ja-network-update-system-state ()
   "Internal method update the network state variable."
-  (setq ja-network--system-state (have-network-p))
+  (setq ja-network--system-state (ja-network-have-network-p))
   )
 
 
 (defun ja-network--update-network-state ()
   "Run hooks only on network status change."
-  (if (org-xor (have-network-p) ja-network--system-state)
+  (if (org-xor (ja-network-have-network-p) ja-network--system-state)
       (progn
-	(if (have-network-p) (run-hooks 'network-up-hook)
+	(if (ja-network-have-network-p) (run-hooks 'network-up-hook)
 	  (run-hooks 'network-down-hook))
 	(ja-network-update-system-state)
 	))
@@ -101,7 +101,7 @@
 	(ja-network--machine-add)))
   (ja-network-update-system-state)
   (run-with-timer ja-network-update-time-interval  nil 'update-network-state)
-  (if (have-network-p) (run-hooks 'network-up-hook))
+  (if (ja-network-have-network-p) (run-hooks 'network-up-hook))
   (message "Network init")
   )
 
