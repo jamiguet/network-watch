@@ -56,7 +56,10 @@
   (setq intf-names ())
   (dolist (intf (network-interface-list) intf-names)
     (setq intf-names (cons (car intf) intf-names)))
-  (set-variable 'ja-network-machine-interface-mapping (cons (list  machine-name intf-names ) ja-network-machine-interface-mapping) "List of machine interfaces.x "))
+  (customize-save-variable 'ja-network-machine-interface-mapping
+		(cons (list  machine-name intf-names ) ja-network-machine-interface-mapping)
+		"List of machine interfaces.x "))
+
 
 
 
