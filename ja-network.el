@@ -7,7 +7,7 @@
 ;; Package-Version: 1.0
 ;; Keywords: unix tools hardware lisp
 ;; Homepage: https://github.com/jamiguet/ja-network
-;; Package-Requires: ((org "9.1") (emacs "24.3"))
+;; Package-Requires: ((emacs "24.3"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -66,12 +66,11 @@
 ;; 	(setq gmail-notifier-password ja-password)
 ;; 
 ;;      (add-hook 'network-up-hook 'gmail-notifier-start)
-;; 	g(add-hook 'network-down-hook 'gmail-notifier-stop)
+;; 	(add-hook 'network-down-hook 'gmail-notifier-stop)
 ;; 
 ;; 
 
 ;;; Code:
-(require 'org)
 (require 'cl-lib)
 
 (defvar network-up-hook)
@@ -137,7 +136,7 @@
 
 (defun ja-network--update-network-state ()
   "Run hooks only on network status change."
-  (if (org-xor (ja-network-have-network-p) ja-network--system-state)
+  (if (cl-set-exclusive-or (ja-network-have-network-p) ja-network--system-state)
       (progn
 	(if (ja-network-have-network-p) (run-hooks 'network-up-hook)
 	  (run-hooks 'network-down-hook))
