@@ -13,7 +13,6 @@
 
 ;; This file is free software...
 
-
 ;;; Commentary:
 
 ;; # ja-network
@@ -121,7 +120,10 @@
     (let (value)
       (dolist (intf
 	       (cadr (assoc machine-name ja-network-machine-interface-mapping)))
-	(setq value (cl-find intf (cl-mapcar #'car (network-interface-list)) :test #'string= ) )
+	(setq value
+	      (cl-find intf
+		       (cl-mapcar #'car (network-interface-list))
+		       :test #'string= ))
 	(if value
 	    (throw 'break value)))
       )))
