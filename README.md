@@ -1,4 +1,4 @@
-# ja-network
+# network-mode
 
 Emacs library for handling intermitent network access.  It provides
 two hooks *network-up-hook* and *network-down-hook* every
@@ -38,10 +38,10 @@ function which returns not nil when a listed interface is up.
 ## Example
 
 In this example *gmail-notifier* is configured with the help of
-*ja-network* it is automatically started and stopped when the network
+*network-mode* it is automatically started and stopped when the network
 	is up or down respectively.
 
-	(require 'ja-network)
+	(require 'network-mode)
 	(require 'gmail-notifier)
 	
 	(setq gmail-notifier-username "jamiguet")
