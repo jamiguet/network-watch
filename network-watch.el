@@ -6,7 +6,7 @@
 ;; Version: 1.0
 ;; Package-Version: 1.0
 ;; Keywords: unix tools hardware lisp
-;; Homepage: https://github.com/jamiguet/ja-network
+;; Homepage: https://github.com/jamiguet/network-watch
 ;; Package-Requires: ((emacs "24.3"))
 
 ;; This file is not part of GNU Emacs.
