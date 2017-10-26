@@ -144,7 +144,7 @@ interface active."
 
 
 (defun network-watch-update-wrap (state)
-  "Blatantly ignore the set state as it is managed by the interface."
+  "Blatantly ignore the set STATE as it is managed by the interface."
   (network-watch-update-state))
 
 
