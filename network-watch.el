@@ -75,14 +75,11 @@
 
 (defvar network-watch-up-hook)
 (defvar network-watch-down-hook)
-(defvar machine-name)
 (defvar network-watch-timer)
+(defvar network-watch-last-state)
 
 ;; define that we are on a specific machine
 (setq machine-name (substring (eshell-command-result "hostname") 0 -1 ))
-
-(let (
-      (network-watch-lighter (concat " N(" (if network-mode "+" "-") ")"))))
  
 ;; Define base group for network information
 (defgroup network nil
@@ -93,95 +90,62 @@
 (define-minor-mode network-watch
   "Network is automatically on when there is a valid network
 interface active."
-  :initial-value t
-  ;; The indicator for the mode line.
+  :init-value t
   :lighter network-watch-lighter
   :global t
   :require 'network-watch
   :group 'network
-  (if nework-watch
-      (network-watch-init)
-    (network-watch-stop)))
+    (network-watch-update-lighter))
 
-
-(defcustom network-watch-interface-mapping ()
-  "List of interfaces providing network per machine."
-  :type 'sexp
-  :group 'network)
 
 (defcustom network-watch-time-interval 120
   "Refersh reate for network status."
   :type 'integer
   :group 'network)
 
-
-(defun network-watch-add-machine ()
-  "Add the current machine to the machine interface mapping."
-  (defvar intf-names)
-  (setq intf-names ())
-  (dolist (intf (network-interface-list) intf-names)
-    (setq intf-names (cons (car intf) intf-names)))
-  (customize-save-variable 'network-watch-interface-mapping
-		(cons (list  machine-name intf-names ) network-watch-interface-mapping)
-		"List of machine interfaces."))
-
+(defun network-watch-update-lighter()
+  (setq network-watch-lighter
+	(concat " N(" (if (network-watch-active-p) "+" "-") ")")))
 
 
 (defun network-watch-active-p ()
-  "Return nil if there are no active network interfaces."
-  (catch 'break
-    (let (value)
-      (dolist (intf
-	       (cadr (assoc machine-name network-watch-interface-mapping)))
-	(setq value
-	      (cl-find intf
-		       (cl-mapcar #'car (network-interface-list))
-		       :test #'string= ))
-	(if value
-	    (throw 'break value))))))
-
+  "Return nil if loopback is the only active interface"
+  (remove-if #'(lambda (it) (equal (cdr it) [127 0 0 1 0] ))  (network-interface-list)))
+  
 
 (defun network-watch-update-system-state ()
   "Internal method update the network state variable."
-  (setq network-watch (network-watch-active-p))
-  ;; toggle the state of the global mode also
-  )
-
-
-(defun network-watch-update-wrap (state)
-  "Blatantly ignore the set STATE as it is managed by the interface."
-  (network-watch-update-state))
-
+  (setq network-watch-last-state (network-watch-active-p)))
+  
 
 (defun network-watch-update-state ()
   "Run hooks only on network status change."
+  (interactive)
   (if (cl-set-exclusive-or
        (if (listp (network-watch-active-p))
 	   (network-watch-active-p)
 	 (list (network-watch-active-p)))
-       (if (listp network-watch)
-	   network-watch
-	 (list network-watch)))
+       (if (listp network-watch-last-state)
+	   network-watch-last-state
+	 (list network-watch-last-state)))
       (progn
 	(if (network-watch-active-p) (run-hooks 'network-watch-up-hook)
 	  (run-hooks 'network-watch-down-hook))
 	(network-watch-update-system-state)
 	))
   (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
-  (message "Network state update"))
+  (message "Network state update")
+  (network-watch-update-lighter))
 
 
 (defun network-watch-init ()
-  "Network-Watch-Initialises the inner state of the network and configures machine if neccessary."
+  "Network-Watch-Initialises the inner state of the network."
   (interactive)
-  (if (not (assoc machine-name network-watch-interface-mapping))
-      (progn
-	(message "Machine not pressent adding machine. Customise network group if needed.")
-	(network-watch-add-machine)))
   (network-watch-update-system-state)
   (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
   (if (network-watch-active-p) (run-hooks 'network-watch-up-hook))
-  (message "Network init"))
+  (message "Network init")
+  (network-watch-update-lighter))
 
 (defun network-watch-stop()
   "Cancels the checking of the network state"
