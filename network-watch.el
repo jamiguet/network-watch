@@ -49,7 +49,7 @@
 ;; 
 ;; ## Utility function
 ;; 
-;; Besides the two hooks the library also provides a *network-watch-p*
+;; Besides the two hooks the library also provides a *network-watch-active-p*
 ;; function which returns not nil when a listed interface is up.
 ;; 
 ;; 
@@ -127,7 +127,7 @@ interface active."
 
 
 
-(defun network-watch-p ()
+(defun network-watch-active-p ()
   "Return nil if there are no active network interfaces."
   (catch 'break
     (let (value)
@@ -143,7 +143,7 @@ interface active."
 
 (defun network-watch-update-system-state ()
   "Internal method update the network state variable."
-  (setq network-watch (network-watch-p))
+  (setq network-watch (network-watch-active-p))
   ;; toggle the state of the global mode also
   )
 
@@ -156,14 +156,14 @@ interface active."
 (defun network-watch-update-state ()
   "Run hooks only on network status change."
   (if (cl-set-exclusive-or
-       (if (listp (network-watch-p))
-	   (network-watch-p)
-	 (list (network-watch-p)))
+       (if (listp (network-watch-active-p))
+	   (network-watch-active-p)
+	 (list (network-watch-active-p)))
        (if (listp network-watch)
 	   network-watch
 	 (list network-watch)))
       (progn
-	(if (network-watch-p) (run-hooks 'network-watch-up-hook)
+	(if (network-watch-active-p) (run-hooks 'network-watch-up-hook)
 	  (run-hooks 'network-watch-down-hook))
 	(network-watch-update-system-state)
 	))
@@ -180,7 +180,7 @@ interface active."
 	(network-watch-add-machine)))
   (network-watch-update-system-state)
   (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
-  (if (network-watch-p) (run-hooks 'network-watch-up-hook))
+  (if (network-watch-active-p) (run-hooks 'network-watch-up-hook))
   (message "Network init"))
 
 (defun network-watch-stop()
