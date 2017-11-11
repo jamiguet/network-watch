@@ -18,7 +18,7 @@
 ;; # network-watch
 ;; 
 ;; Emacs global minormode for handling intermitent network access.  It provides
-;; two hooks *network-up-hook* and *network-down-hook* every
+;; two hooks *network-watch-up-hook* and *network-watch-down-hook* every
 ;; *network-watch-time-interval* the network status is checked if
 ;; nothing changed since the previous time no hooks are invoked.  If
 ;; access to a network is possible then the *network-up-hook* is run.
@@ -73,14 +73,17 @@
 ;;; Code:
 (require 'cl-lib)
 
-(defvar network-up-hook)
-(defvar network-down-hook)
+(defvar network-watch-up-hook)
+(defvar network-watch-down-hook)
 (defvar machine-name)
-(defvar network-watch)
+(defvar network-watch-timer)
 
 ;; define that we are on a specific machine
 (setq machine-name (substring (eshell-command-result "hostname") 0 -1 ))
 
+(let (
+      (network-watch-lighter (concat " N(" (if network-mode "+" "-") ")"))))
+ 
 ;; Define base group for network information
 (defgroup network nil
   "Customisation group for network availability hooks"
@@ -92,10 +95,13 @@
 interface active."
   :initial-value t
   ;; The indicator for the mode line.
+  :lighter network-watch-lighter
   :global t
-  :variable (  '(network-watch-p) .  network-watch-update-wrap )
   :require 'network-watch
-  :group 'network)
+  :group 'network
+  (if nework-watch
+      (network-watch-init)
+    (network-watch-stop)))
 
 
 (defcustom network-watch-interface-mapping ()
@@ -132,8 +138,7 @@ interface active."
 		       (cl-mapcar #'car (network-interface-list))
 		       :test #'string= ))
 	(if value
-	    (throw 'break value)))
-      )))
+	    (throw 'break value))))))
 
 
 (defun network-watch-update-system-state ()
@@ -158,29 +163,32 @@ interface active."
 	   network-watch
 	 (list network-watch)))
       (progn
-	(if (network-watch-p) (run-hooks 'network-up-hook)
-	  (run-hooks 'network-down-hook))
+	(if (network-watch-p) (run-hooks 'network-watch-up-hook)
+	  (run-hooks 'network-watch-down-hook))
 	(network-watch-update-system-state)
 	))
-  (run-with-timer network-watch-time-interval  nil 'network-watch-update-state)
-  (message "Network state update")
-  )
+  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
+  (message "Network state update"))
 
 
 (defun network-watch-init ()
   "Network-Watch-Initialises the inner state of the network and configures machine if neccessary."
+  (interactive)
   (if (not (assoc machine-name network-watch-interface-mapping))
       (progn
 	(message "Machine not pressent adding machine. Customise network group if needed.")
 	(network-watch-add-machine)))
   (network-watch-update-system-state)
-  (run-with-timer network-watch-time-interval  nil 'network-watch-update-state)
-  (if (network-watch-p) (run-hooks 'network-up-hook))
-  (message "Network init")
-  )
+  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
+  (if (network-watch-p) (run-hooks 'network-watch-up-hook))
+  (message "Network init"))
 
+(defun network-watch-stop()
+  "Cancels the checking of the network state"
+  (interactive)
+  (cancel-timer network-watch-timer))
 
-(add-hook 'after-init-hook 'network-watch-init)
+(network-watch-init)
 
 (provide 'network-watch)
 ;;; network-watch.el ends here
