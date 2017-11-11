@@ -65,8 +65,8 @@
 ;; 	(setq gmail-notifier-username "jamiguet")
 ;; 	(setq gmail-notifier-password ja-password)
 ;; 
-;;      (add-hook 'network-up-hook 'gmail-notifier-start)
-;; 	(add-hook 'network-down-hook 'gmail-notifier-stop)
+;;      (add-hook 'network-watch-up-hook 'gmail-notifier-start)
+;; 	(add-hook 'network-watch-down-hook 'gmail-notifier-stop)
 ;; 
 ;; 
 
@@ -78,8 +78,6 @@
 (defvar network-watch-timer)
 (defvar network-watch-last-state)
 
-;; define that we are on a specific machine
-(setq machine-name (substring (eshell-command-result "hostname") 0 -1 ))
  
 ;; Define base group for network information
 (defgroup network nil
