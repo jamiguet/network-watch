@@ -21,30 +21,15 @@
 ;; two hooks *network-watch-up-hook* and *network-watch-down-hook* every
 ;; *network-watch-time-interval* the network status is checked if
 ;; nothing changed since the previous time no hooks are invoked.  If
-;; access to a network is possible then the *network-up-hook* is run.
-;; Conversely when network connectivity is lost the *network-down-hook*
+;; access to a network is possible then the *network-watch-up-hook* is run.
+;; Conversely when network connectivity is lost the *network-watch-down-hook*
 ;; is run.
-;; 
-;; The minor mode is designed to support multiple machines on the same
-;; customised variables setup.
-;; I share all my set-up accross diefferent machines.
-;; The network interfaces of any unknown machines are
-;; automatically added to the customised variable
-;; *network-watch-interface-mapping* which is part of the *network*
-;; customisation group.
 ;; 
 ;; 
 ;; ## Setup
-;; 
-;; The first time the library is used on a computer it will add the
-;; machine name and the set of all active interfaces to the
-;; *network-watch-interface-mapping* customised variable.
-;; Edit the variable by hand to remove any loopback interfacess
-;; or to add the name of any interfaces which are not connected.
-;; 
+;;
+;; Install via elpa then place *(require 'network-watch)* in your *.emacs* file.
 ;; You can also adapt the *network-watch-update-time-interval* to your liking.
-;; The *have-network-hook* is run at the end of Emacs startup if you have
-;; connectivity.
 ;; 
 ;; 
 ;; ## Utility function
