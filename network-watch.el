@@ -117,7 +117,6 @@ interface active."
 	(network-watch-update-system-state)
 	))
   (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
-  (message "Network state update")
   (network-watch-update-lighter))
 
 
