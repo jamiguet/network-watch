@@ -70,10 +70,9 @@
   "Network is automatically on when there is a valid network
 interface active."
   :init-value t
-  :lighter network-watch-lighter
+  :lighter (:eval (network-watch-lighter))
   :global t
-  :require 'network-watch
-  (network-watch-update-lighter))
+  :require 'network-watch)
 
 
 (defcustom network-watch-time-interval 120
@@ -90,8 +89,8 @@ interface active."
 
 
 (defun network-watch-update-lighter()
-  (setq network-watch-lighter
-	(concat " N(" (if (network-watch-active-p) "+" "-") ")")))
+  "Return a mode lighter reflecting the current network state."
+  (concat " N(" (if (network-watch-active-p) "+" "-") ")"))
 
 
 (defun network-watch-active-p ()
@@ -119,8 +118,7 @@ interface active."
 	  (run-hooks 'network-watch-down-hook))
 	(network-watch-update-system-state)
 	))
-  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
-  (network-watch-update-lighter))
+  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state)))
 
 
 (defun network-watch-init ()
@@ -129,8 +127,7 @@ interface active."
   (network-watch-update-system-state)
   (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
   (if (network-watch-active-p) (run-hooks 'network-watch-up-hook))
-  (message "Network init")
-  (network-watch-update-lighter))
+  (message "Network init"))
 
 (defun network-watch-stop()
   "Cancels the checking of the network state"
