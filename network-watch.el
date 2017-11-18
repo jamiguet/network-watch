@@ -94,8 +94,8 @@ interface active."
 
 
 (defun network-watch-active-p ()
-  "Return nil if loopback is the only active interface"
-  (remove-if #'(lambda (it) (equal (cdr it) [127 0 0 1 0] ))  (network-interface-list)))
+  "Return nil if loopback is the only active interface."
+  (cl-remove-if #'(lambda (it) (equal (cdr it) [127 0 0 1 0])) (network-interface-list)))
 
 
 (defun network-watch-update-system-state ()
