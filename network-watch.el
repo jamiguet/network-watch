@@ -1,6 +1,6 @@
 ;;; network-watch.el --- Support for intermitent network connectivity
 ;; Copyright (C) 2010-2017 Juan Amiguet Vercher
-     
+
 ;; Author: Juan Amiguet Vercher <jamiguet@gmail.com>
 ;; Created: 17 Oct 2017
 ;; Version: 1.0
@@ -16,7 +16,7 @@
 ;;; Commentary:
 
 ;; # network-watch
-;; 
+;;
 ;; Emacs global minormode for handling intermitent network access.  It provides
 ;; two hooks *network-watch-up-hook* and *network-watch-down-hook* every
 ;; *network-watch-time-interval* the network status is checked if
@@ -24,36 +24,36 @@
 ;; access to a network is possible then the *network-watch-up-hook* is run.
 ;; Conversely when network connectivity is lost the *network-watch-down-hook*
 ;; is run.
-;; 
-;; 
+;;
+;;
 ;; ## Setup
 ;;
 ;; Install via elpa then place *(require 'network-watch)* in your *.emacs* file.
 ;; You can also adapt the *network-watch-update-time-interval* to your liking.
-;; 
-;; 
+;;
+;;
 ;; ## Utility function
-;; 
+;;
 ;; Besides the two hooks the library also provides a *network-watch-active-p*
 ;; function which returns not nil when a listed interface is up.
-;; 
-;; 
+;;
+;;
 ;; ## Example
-;; 
+;;
 ;; In this example *gmail-notifier* is configured with the help of
 ;; *network-watch* it is automatically started and stopped when the network
 ;; 	is up or down respectively.
-;; 
+;;
 ;; 	(require 'network-watch)
 ;; 	(require 'gmail-notifier)
-;; 	
+;;
 ;; 	(setq gmail-notifier-username "jamiguet")
 ;; 	(setq gmail-notifier-password ja-password)
-;; 
+;;
 ;;      (add-hook 'network-watch-up-hook 'gmail-notifier-start)
 ;; 	(add-hook 'network-watch-down-hook 'gmail-notifier-stop)
-;; 
-;; 
+;;
+;;
 
 ;;; Code:
 (require 'cl-lib)
@@ -63,7 +63,7 @@
 (defvar network-watch-timer)
 (defvar network-watch-last-state)
 
- 
+
 ;; Define base group for network information
 (defgroup network nil
   "Customisation group for network availability hooks"
@@ -94,12 +94,12 @@ interface active."
 (defun network-watch-active-p ()
   "Return nil if loopback is the only active interface"
   (remove-if #'(lambda (it) (equal (cdr it) [127 0 0 1 0] ))  (network-interface-list)))
-  
+
 
 (defun network-watch-update-system-state ()
   "Internal method update the network state variable."
   (setq network-watch-last-state (network-watch-active-p)))
-  
+
 
 (defun network-watch-update-state ()
   "Run hooks only on network status change."
