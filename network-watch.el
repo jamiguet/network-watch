@@ -57,15 +57,12 @@
 ;;; Code:
 (require 'cl-lib)
 
-(defvar network-watch-up-hook)
-(defvar network-watch-down-hook)
 (defvar network-watch-timer)
 (defvar network-watch-last-state)
 
 
-;; Define base group for network information
-(defgroup network nil
-  "Customisation group for network availability hooks"
+(defgroup network-watch nil
+  "Watch and respond to the availability of network interfaces."
   :group 'Communication)
 
 
@@ -76,14 +73,21 @@ interface active."
   :lighter network-watch-lighter
   :global t
   :require 'network-watch
-  :group 'network
-    (network-watch-update-lighter))
+  (network-watch-update-lighter))
 
 
 (defcustom network-watch-time-interval 120
-  "Refersh reate for network status."
-  :type 'integer
-  :group 'network)
+  "Refresh rate for network status."
+  :type 'integer)
+
+(defcustom network-watch-up-hook ()
+  "Hook called when a watched interface becomes available."
+  :type 'hook)
+
+(defcustom network-watch-down-hook ()
+  "Hook called when a watched interface stops being available."
+  :type 'hook)
+
 
 (defun network-watch-update-lighter()
   (setq network-watch-lighter
