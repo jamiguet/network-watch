@@ -34,8 +34,8 @@
 ;; Conversely when network connectivity is lost the `network-watch-down-hook'
 ;; is run.
 ;;
-;; Install via elpa then place "(require 'network-watch)* in your *.emacs* file.
-;; You can also adapt the `network-watch-update-time-interval' to your liking.
+;; Install via elpa then enable `network-watch-mode'.  You can also
+;; adapt the `network-watch-update-time-interval' to your liking.
 ;;
 ;; Besides the two hooks the library also provides a `network-watch-active-p'
 ;; function which returns not nil when a listed interface is up.
@@ -64,15 +64,6 @@
 (defgroup network-watch nil
   "Watch and respond to the availability of network interfaces."
   :group 'Communication)
-
-
-(define-minor-mode network-watch
-  "Network is automatically on when there is a valid network
-interface active."
-  :init-value t
-  :lighter (:eval (network-watch-lighter))
-  :global t
-  :require 'network-watch)
 
 
 (defcustom network-watch-time-interval 120
@@ -114,27 +105,25 @@ interface active."
 	   network-watch-last-state
 	 (list network-watch-last-state)))
       (progn
-	(if (network-watch-active-p) (run-hooks 'network-watch-up-hook)
-	  (run-hooks 'network-watch-down-hook))
-	(network-watch-update-system-state)
-	))
+        (run-hooks (if (network-watch-active-p) 'network-watch-up-hook 'network-watch-down-hook))
+	(network-watch-update-system-state)))
   (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state)))
 
 
-(defun network-watch-init ()
-  "Network-Watch-Initialises the inner state of the network."
-  (interactive)
-  (network-watch-update-system-state)
-  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
-  (if (network-watch-active-p) (run-hooks 'network-watch-up-hook))
-  (message "Network init"))
-
-(defun network-watch-stop()
-  "Cancels the checking of the network state"
-  (interactive)
-  (cancel-timer network-watch-timer))
-
-(network-watch-init)
+;;;###autoload
+(define-minor-mode network-watch-mode
+  "Network is automatically on when there is a valid network interface active."
+  :init-value t
+  :lighter (:eval (network-watch-lighter))
+  :global t
+  :require 'network-watch
+  (if network-watch-mode
+      (progn
+        (network-watch-update-system-state)
+        (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
+        (if (network-watch-active-p) (run-hooks 'network-watch-up-hook))
+        (message "Network init"))
+    (cancel-timer network-watch-timer)))
 
 (provide 'network-watch)
 ;;; network-watch.el ends here
