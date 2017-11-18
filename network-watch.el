@@ -1,4 +1,4 @@
-;;; network-watch.el --- Support for intermitent network connectivity
+;;; network-watch.el --- Support for intermittent network connectivity
 ;; Copyright (C) 2010-2017 Juan Amiguet Vercher
 
 ;; Author: Juan Amiguet Vercher <jamiguet@gmail.com>
@@ -11,38 +11,38 @@
 
 ;; This file is not part of GNU Emacs.
 
-;; This file is free software...
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;; # network-watch
-;;
-;; Emacs global minormode for handling intermitent network access.  It provides
-;; two hooks *network-watch-up-hook* and *network-watch-down-hook* every
-;; *network-watch-time-interval* the network status is checked if
+;; Global minor mode for handling intermitent network access.  It provides
+;; two hooks `network-watch-up-hook' and `network-watch-down-hook' every
+;; `network-watch-time-interval' the network status is checked if
 ;; nothing changed since the previous time no hooks are invoked.  If
-;; access to a network is possible then the *network-watch-up-hook* is run.
-;; Conversely when network connectivity is lost the *network-watch-down-hook*
+;; access to a network is possible then the `network-watch-up-hook' is run.
+;; Conversely when network connectivity is lost the `network-watch-down-hook'
 ;; is run.
 ;;
+;; Install via elpa then place "(require 'network-watch)* in your *.emacs* file.
+;; You can also adapt the `network-watch-update-time-interval' to your liking.
 ;;
-;; ## Setup
-;;
-;; Install via elpa then place *(require 'network-watch)* in your *.emacs* file.
-;; You can also adapt the *network-watch-update-time-interval* to your liking.
-;;
-;;
-;; ## Utility function
-;;
-;; Besides the two hooks the library also provides a *network-watch-active-p*
+;; Besides the two hooks the library also provides a `network-watch-active-p'
 ;; function which returns not nil when a listed interface is up.
 ;;
-;;
-;; ## Example
-;;
-;; In this example *gmail-notifier* is configured with the help of
-;; *network-watch* it is automatically started and stopped when the network
-;; 	is up or down respectively.
+;; In this example `gmail-notifier' is configured with the help of
+;; network-watch - it is automatically started and stopped when the network
+;; is up or down respectively:
 ;;
 ;; 	(require 'network-watch)
 ;; 	(require 'gmail-notifier)
@@ -52,7 +52,6 @@
 ;;
 ;;      (add-hook 'network-watch-up-hook 'gmail-notifier-start)
 ;; 	(add-hook 'network-watch-down-hook 'gmail-notifier-stop)
-;;
 ;;
 
 ;;; Code:
