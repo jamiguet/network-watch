@@ -1,6 +1,6 @@
-;;; network-watch.el --- Support for intermitent network connectivity
+;;; network-watch.el --- Support for intermittent network connectivity
 ;; Copyright (C) 2010-2017 Juan Amiguet Vercher
-     
+
 ;; Author: Juan Amiguet Vercher <jamiguet@gmail.com>
 ;; Created: 17 Oct 2017
 ;; Version: 1.0
@@ -11,95 +11,88 @@
 
 ;; This file is not part of GNU Emacs.
 
-;; This file is free software...
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;; # network-watch
-;; 
-;; Emacs global minormode for handling intermitent network access.  It provides
-;; two hooks *network-watch-up-hook* and *network-watch-down-hook* every
-;; *network-watch-time-interval* the network status is checked if
+;; Global minor mode for handling intermitent network access.  It provides
+;; two hooks `network-watch-up-hook' and `network-watch-down-hook' every
+;; `network-watch-time-interval' the network status is checked if
 ;; nothing changed since the previous time no hooks are invoked.  If
-;; access to a network is possible then the *network-watch-up-hook* is run.
-;; Conversely when network connectivity is lost the *network-watch-down-hook*
+;; access to a network is possible then the `network-watch-up-hook' is run.
+;; Conversely when network connectivity is lost the `network-watch-down-hook'
 ;; is run.
-;; 
-;; 
-;; ## Setup
 ;;
-;; Install via elpa then place *(require 'network-watch)* in your *.emacs* file.
-;; You can also adapt the *network-watch-update-time-interval* to your liking.
-;; 
-;; 
-;; ## Utility function
-;; 
-;; Besides the two hooks the library also provides a *network-watch-active-p*
+;; Install via elpa then enable `network-watch-mode'.  You can also
+;; adapt the `network-watch-update-time-interval' to your liking.
+;;
+;; Besides the two hooks the library also provides a `network-watch-active-p'
 ;; function which returns not nil when a listed interface is up.
-;; 
-;; 
-;; ## Example
-;; 
-;; In this example *gmail-notifier* is configured with the help of
-;; *network-watch* it is automatically started and stopped when the network
-;; 	is up or down respectively.
-;; 
+;;
+;; In this example `gmail-notifier' is configured with the help of
+;; network-watch - it is automatically started and stopped when the network
+;; is up or down respectively:
+;;
 ;; 	(require 'network-watch)
 ;; 	(require 'gmail-notifier)
-;; 	
+;;
 ;; 	(setq gmail-notifier-username "jamiguet")
 ;; 	(setq gmail-notifier-password ja-password)
-;; 
+;;
 ;;      (add-hook 'network-watch-up-hook 'gmail-notifier-start)
 ;; 	(add-hook 'network-watch-down-hook 'gmail-notifier-stop)
-;; 
-;; 
+;;
 
 ;;; Code:
 (require 'cl-lib)
 
-(defvar network-watch-up-hook)
-(defvar network-watch-down-hook)
 (defvar network-watch-timer)
 (defvar network-watch-last-state)
 
- 
-;; Define base group for network information
-(defgroup network nil
-  "Customisation group for network availability hooks"
+
+(defgroup network-watch nil
+  "Watch and respond to the availability of network interfaces."
   :group 'Communication)
 
 
-(define-minor-mode network-watch
-  "Network is automatically on when there is a valid network
-interface active."
-  :init-value t
-  :lighter network-watch-lighter
-  :global t
-  :require 'network-watch
-  :group 'network
-    (network-watch-update-lighter))
-
-
 (defcustom network-watch-time-interval 120
-  "Refersh reate for network status."
-  :type 'integer
-  :group 'network)
+  "Refresh rate for network status."
+  :type 'integer)
+
+(defcustom network-watch-up-hook ()
+  "Hook called when a watched interface becomes available."
+  :type 'hook)
+
+(defcustom network-watch-down-hook ()
+  "Hook called when a watched interface stops being available."
+  :type 'hook)
+
 
 (defun network-watch-update-lighter()
-  (setq network-watch-lighter
-	(concat " N(" (if (network-watch-active-p) "+" "-") ")")))
+  "Return a mode lighter reflecting the current network state."
+  (concat " N(" (if (network-watch-active-p) "+" "-") ")"))
 
 
 (defun network-watch-active-p ()
-  "Return nil if loopback is the only active interface"
-  (remove-if #'(lambda (it) (equal (cdr it) [127 0 0 1 0] ))  (network-interface-list)))
-  
+  "Return nil if loopback is the only active interface."
+  (cl-remove-if #'(lambda (it) (equal (cdr it) [127 0 0 1 0])) (network-interface-list)))
+
 
 (defun network-watch-update-system-state ()
   "Internal method update the network state variable."
   (setq network-watch-last-state (network-watch-active-p)))
-  
+
 
 (defun network-watch-update-state ()
   "Run hooks only on network status change."
@@ -112,29 +105,25 @@ interface active."
 	   network-watch-last-state
 	 (list network-watch-last-state)))
       (progn
-	(if (network-watch-active-p) (run-hooks 'network-watch-up-hook)
-	  (run-hooks 'network-watch-down-hook))
-	(network-watch-update-system-state)
-	))
-  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
-  (network-watch-update-lighter))
+        (run-hooks (if (network-watch-active-p) 'network-watch-up-hook 'network-watch-down-hook))
+	(network-watch-update-system-state)))
+  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state)))
 
 
-(defun network-watch-init ()
-  "Network-Watch-Initialises the inner state of the network."
-  (interactive)
-  (network-watch-update-system-state)
-  (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
-  (if (network-watch-active-p) (run-hooks 'network-watch-up-hook))
-  (message "Network init")
-  (network-watch-update-lighter))
-
-(defun network-watch-stop()
-  "Cancels the checking of the network state"
-  (interactive)
-  (cancel-timer network-watch-timer))
-
-(network-watch-init)
+;;;###autoload
+(define-minor-mode network-watch-mode
+  "Network is automatically on when there is a valid network interface active."
+  :init-value t
+  :lighter (:eval (network-watch-lighter))
+  :global t
+  :require 'network-watch
+  (if network-watch-mode
+      (progn
+        (network-watch-update-system-state)
+        (setq network-watch-timer (run-with-timer network-watch-time-interval  nil 'network-watch-update-state))
+        (if (network-watch-active-p) (run-hooks 'network-watch-up-hook))
+        (message "Network init"))
+    (cancel-timer network-watch-timer)))
 
 (provide 'network-watch)
 ;;; network-watch.el ends here

@@ -11,8 +11,8 @@ is run.
 
 ## Setup
 
-Install via elpa then place *(require 'network-watch)* in your *.emacs* file.
-You can also adapt the *network-watch-update-time-interval* to your liking. 
+Install via elpa then enable `network-watch-mode'.  You can also adapt
+the *network-watch-update-time-interval* to your liking.
 
 
 ## Utility function
