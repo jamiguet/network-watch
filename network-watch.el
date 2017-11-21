@@ -114,7 +114,7 @@
 (define-minor-mode network-watch-mode
   "Network is automatically on when there is a valid network interface active."
   :init-value t
-  :lighter (:eval (network-watch-lighter))
+  :lighter (:eval (network-watch-update-lighter))
   :global t
   :require 'network-watch
   (if network-watch-mode
