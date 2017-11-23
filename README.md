@@ -1,4 +1,5 @@
 # network-watch
+[![MELPA](https://melpa.org/packages/network-watch-badge.svg)](https://melpa.org/#/network-watch)
 
 Emacs global minormode for handling intermitent network access.  It provides
 two hooks *network-watch-up-hook* and *network-watch-down-hook* every
